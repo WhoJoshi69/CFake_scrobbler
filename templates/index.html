@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhoJoshi Image Fetcher</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #111; /* Dark background color */
+            color: #fff; /* Light text color */
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #333; /* Darker border color */
+            border-radius: 5px;
+            background-color: #222; /* Slightly lighter background color */
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            background-color: #333; /* Darker input background color */
+            color: #fff; /* Light input text color */
+            border: none;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #message {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #333; /* Darker message background color */
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WhoJoshi Image Fetcher</h1>
+        <form id="fetch-form">
+            <input type="text" id="url-input" placeholder="Enter URL">
+            <button type="submit">Fetch Images</button>
+        </form>
+        <div id="message"></div>
+    </div>
+    <script>
+        const form = document.getElementById("fetch-form");
+        const messageDiv = document.getElementById("message");
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const urlInput = document.getElementById("url-input");
+            const url = urlInput.value;
+
+            if (url.trim() === "") {
+                messageDiv.textContent = "Please enter a valid URL.";
+                return;
+            }
+
+            const response = await fetch(`/fetch_everything?url=${encodeURIComponent(url)}`);
+            const data = await response.text();
+            messageDiv.textContent = data;
+        });
+    </script>
+</body>
+</html>
