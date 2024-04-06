@@ -1,4 +1,3 @@
-import json
 import os
 import re
 import requests
@@ -6,8 +5,7 @@ from fastapi import FastAPI, Request, WebSocket
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 import asyncio
-
-from starlette.websockets import WebSocketDisconnect
+import concurrent.futures  # Added for threading
 
 app = FastAPI()
 
@@ -16,6 +14,8 @@ templates = Jinja2Templates(directory="templates")
 
 # Store active WebSocket connections
 websocket_connections = []
+
+executor = concurrent.futures.ThreadPoolExecutor()
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -35,8 +35,6 @@ async def websocket_endpoint(websocket: WebSocket):
         websocket_connections.remove(websocket)
 
 
-# Rest of your code for fetching images remains the same
-
 # Function to send messages to all connected clients
 async def send_message(message):
     for connection in websocket_connections:
@@ -47,9 +45,6 @@ async def send_message(message):
 def print_to_frontend(message):
     print(message)  # Print to console as well
     asyncio.run(send_message(message))
-
-
-# Rest of your code
 
 
 @app.get("/fetch_everything/")
@@ -92,7 +87,8 @@ def fetch_everything(url):
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
 
-        for url in image_urls:
+        # Define a function to download images
+        def download_image(url, index):
             response = requests.get(url)
             if response.status_code == 200:
                 image_extension = url.split('.')[-1]
@@ -105,7 +101,13 @@ def fetch_everything(url):
                 print(f"Downloaded: {image_filename}")
             else:
                 print(f"Failed to download: {url}")
-            index += 1
+
+        # Download images using multiple threads
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            for url in image_urls:
+                executor.submit(download_image, url, index)
+                index += 1
+
         print(f"Page {page_index} completed successfully")
         page_index += 1
 
