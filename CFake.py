@@ -7,6 +7,8 @@ from fastapi.templating import Jinja2Templates
 import asyncio
 import concurrent.futures  # Added for threading
 
+from starlette.websockets import WebSocketDisconnect
+
 app = FastAPI()
 
 # Define the templates folder
